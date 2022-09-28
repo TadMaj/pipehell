@@ -1,6 +1,6 @@
 package engine
 
-import processing.core.{PApplet, PConstants}
+import processing.core.PApplet
 
 class GameBase extends PApplet {
   val gameWidth = 1200

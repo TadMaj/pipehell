@@ -4,30 +4,36 @@ import java.awt.event
 import java.awt.event.KeyEvent._
 import engine.GameBase
 import processing.core.{PApplet, PImage}
-import processing.event.KeyEvent
+import processing.event.{KeyEvent, MouseEvent}
 import pipes.logic._
-import engine.graphics.{Button, ImageManager, Menu, TextBox}
+import engine.graphics._
+import engine.helpers._
 
 class PipeGame extends GameBase {
-
   var gameLogic: PipeLogic = PipeLogic()
+
   val updateTimer = new UpdateTimer(PipeLogic.FramesPerSecond.toFloat)
 
   val menuList: List[Menu] = Menu()
 
   var loadedImageList: Map[String, PImage] = Map[String, PImage]()
+
+  var appState: AppState = StateMenu
+
+  def setupStartGame(): Unit = gameLogic = new PipeLogic()
+
   //val gridDims : Dimensions = gameLogic.gridDims
   //val widthInPixels: Int = (WidthCellInPixels * gridDims.width).ceil.toInt
   //val heightInPixels: Int = (HeightCellInPixels * gridDims.height).ceil.toInt
 
   override def draw(): Unit = {
     updateState()
-    drawMenu()
+    if (appState == StateMenu) drawMenu()
   }
 
   def drawMenu(): Unit = {
-    loadedImageList("test").resize(gameWidth, gameHeight)
-    background(loadedImageList("test"))
+    loadedImageList("background")
+    background(loadedImageList("background"))
     textSize(55);
     menuList.foreach(findMenu)
   }
@@ -35,6 +41,7 @@ class PipeGame extends GameBase {
   def findMenu(item: Menu): Unit = item match {
     case item: TextBox => text(item.text, item.position.x.toFloat, item.position.y.toFloat)
     case item: Button => image(loadedImageList(item.image), item.position.x.toFloat, item.position.y.toFloat)
+    case item: Image => image(loadedImageList(item.image), item.position.x.toFloat, item.position.y.toFloat)
   }
 
   /*def drawGameOverScreen(): Unit = {
@@ -64,7 +71,6 @@ class PipeGame extends GameBase {
     }
 
   }*/
-
   /** Method that calls handlers for different key press events.
     * You may add extra functionality for other keys here.
     * See [[event.KeyEvent]] for all defined keycodes.
@@ -86,6 +92,19 @@ class PipeGame extends GameBase {
 
   }
 
+  override def mouseClicked(event: MouseEvent): Unit = appState match {
+    case StateMenu => checkForMenuButtonClick()
+  }
+
+  def checkForMenuButtonClick(): Unit = {
+    if (checkIfMouseInBounds(Point(400, 500), Point(800, 560))) {
+      appState = StateGame
+      setupStartGame()
+    }
+    if (checkIfMouseInBounds(Point(400, 700), Point(800, 760))) exit()
+  }
+
+  def checkIfMouseInBounds(topLeft: Point, bottomRight: Point): Boolean = topLeft.x < mouseX && bottomRight.x > mouseX && topLeft.y < mouseY && bottomRight.y > mouseY
   override def settings(): Unit = {
     pixelDensity(displayDensity())
     // If line below gives errors try size(widthInPixels, heightInPixels, PConstants.P2D)

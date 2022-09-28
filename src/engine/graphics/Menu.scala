@@ -8,11 +8,14 @@ case class Button(point: Point, image: String = "button") extends Menu(position 
 
 case class TextBox(point: Point, text: String) extends Menu(position = point)
 
+case class Image(point: Point, image: String) extends Menu(position = point)
+
 object Menu {
   def apply(): List[Menu] = List[Menu](
-    Button(Point(400, 400)),
-    TextBox(Point(450, 450), "Start Game"),
-    Button(Point(400, 500)),
-    TextBox(Point(540, 550), "Quit"),
+    Button(Point(400, 450)),
+    TextBox(Point(450, 500), "Start Game"),
+    Button(Point(400, 650)),
+    TextBox(Point(540, 700), "Quit"),
+    Image(Point(250, 100), "title")
   )
 }
