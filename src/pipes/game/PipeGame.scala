@@ -29,10 +29,10 @@ class PipeGame extends GameBase {
   override def draw(): Unit = {
     updateState()
     if (appState == StateMenu) drawMenu()
+    if (appState == StateGame) drawGame()
   }
 
   def drawMenu(): Unit = {
-    loadedImageList("background")
     background(loadedImageList("background"))
     textSize(55);
     menuList.foreach(findMenu)
@@ -44,6 +44,9 @@ class PipeGame extends GameBase {
     case item: Image => image(loadedImageList(item.image), item.position.x.toFloat, item.position.y.toFloat)
   }
 
+  def drawGame(): Unit = {
+    background(51)
+  }
   /*def drawGameOverScreen(): Unit = {
     setFillColor(Color.Red)
     drawTextCentered("GAME OVER!", 20, screenArea.center)
@@ -97,11 +100,11 @@ class PipeGame extends GameBase {
   }
 
   def checkForMenuButtonClick(): Unit = {
-    if (checkIfMouseInBounds(Point(400, 500), Point(800, 560))) {
+    if (checkIfMouseInBounds(Point(400, 450), Point(800, 510))) {
       appState = StateGame
       setupStartGame()
     }
-    if (checkIfMouseInBounds(Point(400, 700), Point(800, 760))) exit()
+    if (checkIfMouseInBounds(Point(400, 650), Point(800, 710))) exit()
   }
 
   def checkIfMouseInBounds(topLeft: Point, bottomRight: Point): Boolean = topLeft.x < mouseX && bottomRight.x > mouseX && topLeft.y < mouseY && bottomRight.y > mouseY
