@@ -20,7 +20,9 @@ class PipeGame extends GameBase {
 
   var appState: AppState = StateMenu
 
-  def setupStartGame(): Unit = gameLogic = new PipeLogic()
+  def setupStartGame(): Unit = {
+    gameLogic = new PipeLogic()
+  }
 
   //val gridDims : Dimensions = gameLogic.gridDims
   //val widthInPixels: Int = (WidthCellInPixels * gridDims.width).ceil.toInt
@@ -45,35 +47,33 @@ class PipeGame extends GameBase {
   }
 
   def drawGame(): Unit = {
-    background(51)
+    background(150)
+    image(loadedImageList("border"), 0, 0)
+    drawGrid()
+    drawScore()
   }
-  /*def drawGameOverScreen(): Unit = {
-    setFillColor(Color.Red)
-    drawTextCentered("GAME OVER!", 20, screenArea.center)
+
+  def drawScore(): Unit = {
+    textSize(40);
+    text("Score: " + gameLogic.score, 150, 40)
+    text("Required chain: " + gameLogic.required, 550, 40)
   }
 
   def drawGrid(): Unit = {
+    val pointOffset = Point(150, 57)
+    val cellRightOffSet = Point(100, 0)
+    val cellDownOffSet = Point(0, 100)
 
-    val widthPerCell = screenArea.width / gridDims.width
-    val heightPerCell = screenArea.height / gridDims.height
-
-    for (p <- gridDims.allPointsInside) {
-      drawCell(getCell(p), gameLogic.getCellType(p))
+    for (i <- 0 until 7) {
+      for (x <- 0 until 10) {
+        val element = gameLogic.getCellType(Point(i, x))
+        if (element == 0) {
+          val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
+          image(loadedImageList("emptyCell"), newPoint.x.toFloat, newPoint.y.toFloat)
+        }
+      }
     }
-
-    def getCell(p : GridPoint): Rectangle = {
-      val leftUp = Point(screenArea.left + p.x * widthPerCell,
-        screenArea.top + p.y * heightPerCell)
-      Rectangle(leftUp, widthPerCell, heightPerCell)
-    }
-
-    def drawCell(area: Rectangle, tetrisColor: CellType): Unit = {
-      val color = tetrisBlockToColor(tetrisColor)
-      setFillColor(color)
-      drawRectangle(area)
-    }
-
-  }*/
+  }
   /** Method that calls handlers for different key press events.
     * You may add extra functionality for other keys here.
     * See [[event.KeyEvent]] for all defined keycodes.

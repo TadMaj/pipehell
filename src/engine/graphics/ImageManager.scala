@@ -5,6 +5,8 @@ object ImageManager {
     ("test", "src/engine/assets/image.jpg"),
     ("button", "src/engine/assets/button.png"),
     ("background", "src/engine/assets/background.png"),
-    ("title", "src/engine/assets/title.gif")
+    ("title", "src/engine/assets/title.gif"),
+    ("border", "src/engine/assets/border.png"),
+    ("emptyCell", "src/engine/assets/emptyCell.png")
   )
 }

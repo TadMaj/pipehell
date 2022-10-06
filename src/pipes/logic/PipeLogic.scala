@@ -1,7 +1,13 @@
 package pipes.logic
 
-class PipeLogic() {
+import engine.helpers.Point
 
+class PipeLogic() {
+  var score = 0
+  var required = 7
+  def getCellType(point: Point): Int = {
+    0 //Todo: Implement
+  }
 }
 
 object PipeLogic {
