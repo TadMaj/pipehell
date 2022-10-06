@@ -24,10 +24,6 @@ class PipeGame extends GameBase {
     gameLogic = new PipeLogic()
   }
 
-  //val gridDims : Dimensions = gameLogic.gridDims
-  //val widthInPixels: Int = (WidthCellInPixels * gridDims.width).ceil.toInt
-  //val heightInPixels: Int = (HeightCellInPixels * gridDims.height).ceil.toInt
-
   override def draw(): Unit = {
     updateState()
     if (appState == StateMenu) drawMenu()
@@ -51,12 +47,21 @@ class PipeGame extends GameBase {
     image(loadedImageList("border"), 0, 0)
     drawGrid()
     drawScore()
+    drawUpcoming()
   }
 
   def drawScore(): Unit = {
     textSize(40);
     text("Score: " + gameLogic.score, 150, 40)
     text("Required chain: " + gameLogic.required, 550, 40)
+  }
+
+  def drawUpcoming(): Unit = {
+    val originPoint = Point(30, 80)
+    val upcoming: List[Cell] = gameLogic.getUpcoming()
+    for (i <- 0 until 5) {
+      image(loadedImageList(upcoming(i).image), originPoint.x.toFloat, (originPoint.y+100*i).toFloat)
+    }
   }
 
   def drawGrid(): Unit = {
@@ -67,37 +72,18 @@ class PipeGame extends GameBase {
     for (i <- 0 until 7) {
       for (x <- 0 until 10) {
         val element = gameLogic.getCellType(Point(i, x))
-        if (element == 0) {
-          val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
-          image(loadedImageList("emptyCell"), newPoint.x.toFloat, newPoint.y.toFloat)
-        }
+        val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
+        image(loadedImageList(element.image), newPoint.x.toFloat, newPoint.y.toFloat)
       }
     }
-  }
-  /** Method that calls handlers for different key press events.
-    * You may add extra functionality for other keys here.
-    * See [[event.KeyEvent]] for all defined keycodes.
-    *
-    * @param event The key press event to handle
-    */
-  override def keyPressed(event: KeyEvent): Unit = {
-
-    /*event.getKeyCode match {
-      case VK_A     => gameLogic.rotateLeft()
-      case VK_S     => gameLogic.rotateRight()
-      case VK_UP    => gameLogic.rotateRight()
-      case VK_DOWN  => gameLogic.moveDown()
-      case VK_LEFT  => gameLogic.moveLeft()
-      case VK_RIGHT => gameLogic.moveRight()
-      case VK_SPACE => gameLogic.doHardDrop()
-      case _        => ()
-    }*/
-
   }
 
   override def mouseClicked(event: MouseEvent): Unit = appState match {
     case StateMenu => checkForMenuButtonClick()
+    case StateGame => checkForGameButtonClick()
   }
+
+  def checkForGameButtonClick(): Unit = if (checkIfMouseInBounds(Point(150, 57), Point(1150, 757))) gameLogic.mouseClick(Point((mouseX-150)/100, (mouseY-57)/100))
 
   def checkForMenuButtonClick(): Unit = {
     if (checkIfMouseInBounds(Point(400, 450), Point(800, 510))) {
@@ -108,10 +94,11 @@ class PipeGame extends GameBase {
   }
 
   def checkIfMouseInBounds(topLeft: Point, bottomRight: Point): Boolean = topLeft.x < mouseX && bottomRight.x > mouseX && topLeft.y < mouseY && bottomRight.y > mouseY
+
   override def settings(): Unit = {
     pixelDensity(displayDensity())
     // If line below gives errors try size(widthInPixels, heightInPixels, PConstants.P2D)
-    size(1200, 800)
+    size(gameWidth, gameHeight)
   }
 
   override def setup(): Unit = {
@@ -125,18 +112,13 @@ class PipeGame extends GameBase {
 
   def updateState(): Unit = {
     if (updateTimer.timeForNextFrame()) {
-      //gameLogic.moveDown()
+      gameLogic.advanceTime()
       updateTimer.advanceFrame()
     }
   }
 }
 
 object PipeGame {
-
-
-  val WidthCellInPixels: Double = 15 * PipeLogic.DrawSizeFactor
-  val HeightCellInPixels: Double = WidthCellInPixels
-
   def main(args:Array[String]): Unit = {
     PApplet.main("pipes.game.PipeGame")
   }

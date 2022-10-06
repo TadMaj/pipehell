@@ -17,22 +17,5 @@ class GameBase extends PApplet {
     def advanceFrame(): Unit = nextFrame = nextFrame + frameDuration
 
   }
-
-  // ===Processing Wrappers & Abstractions===
-
-  /** An alias for the obscurely named function millis()
-    *
-    * @return Current time in milliseconds since stating the program.
-    */
   def currentTime(): Int = millis()
-
-  /*def drawTextShadow(string: String, pos: Point, color: Color = Black, thickness: Float = 1): Unit = {
-    pushStyle()
-    setFillColor(color)
-    List((1,0),(-1,0),(0,1),(0,-1)).foreach(t => {
-      text(string, pos.x+(t._1*thickness), pos.y+t._2*thickness)
-    })
-    popStyle()
-  }*/
-
 }
