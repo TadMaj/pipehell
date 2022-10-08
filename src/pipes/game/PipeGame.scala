@@ -69,9 +69,12 @@ class PipeGame extends GameBase {
     val cellRightOffSet = Point(100, 0)
     val cellDownOffSet = Point(0, 100)
 
+    fill(0, 0, 0)
+    rect(pointOffset.x.toFloat, pointOffset.y.toFloat, cellRightOffSet.x.toFloat*10, cellDownOffSet.y.toFloat*7)
+
     for (i <- 0 until 7) {
       for (x <- 0 until 10) {
-        val element = gameLogic.getCellType(Point(i, x))
+        val element = gameLogic.getCellType(Point(x, i))
         val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
         image(loadedImageList(element.image), newPoint.x.toFloat, newPoint.y.toFloat)
       }
