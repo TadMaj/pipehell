@@ -1,10 +1,8 @@
 package pipes.game
 
-import java.awt.event
-import java.awt.event.KeyEvent._
 import engine.GameBase
 import processing.core.{PApplet, PImage}
-import processing.event.{KeyEvent, MouseEvent}
+import processing.event.MouseEvent
 import pipes.logic._
 import engine.graphics._
 import engine.helpers._
@@ -32,7 +30,7 @@ class PipeGame extends GameBase {
 
   def drawMenu(): Unit = {
     background(loadedImageList("background"))
-    textSize(55);
+    textSize(55)
     menuList.foreach(findMenu)
   }
 
@@ -51,17 +49,15 @@ class PipeGame extends GameBase {
   }
 
   def drawScore(): Unit = {
-    textSize(40);
+    textSize(40)
     text("Score: " + gameLogic.score, 150, 40)
     text("Required chain: " + gameLogic.required, 550, 40)
   }
 
   def drawUpcoming(): Unit = {
     val originPoint = Point(30, 80)
-    val upcoming: List[Cell] = gameLogic.getUpcoming()
-    for (i <- 0 until 5) {
-      image(loadedImageList(upcoming(i).image), originPoint.x.toFloat, (originPoint.y+100*i).toFloat)
-    }
+    val upcoming: List[Cell] = gameLogic.getUpcoming
+    for (i <- 0 until 5) image(loadedImageList(upcoming(i).image), originPoint.x.toFloat, (originPoint.y+100*i).toFloat)
   }
 
   def drawGrid(): Unit = {
