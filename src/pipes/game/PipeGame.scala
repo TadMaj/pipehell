@@ -8,24 +8,29 @@ import engine.graphics._
 import engine.helpers._
 
 class PipeGame extends GameBase {
-  var gameLogic: PipeLogic = PipeLogic()
+  var gameLogic: PipeLogic = PipeLogic(0, 0)
 
   val updateTimer = new UpdateTimer(PipeLogic.FramesPerSecond.toFloat)
 
   val menuList: List[Menu] = Menu()
 
+  val gameOverMenuList: List[Menu] = GameOverMenu()
+
   var loadedImageList: Map[String, PImage] = Map[String, PImage]()
 
   var appState: AppState = StateMenu
 
+  var level = 0
+
   def setupStartGame(): Unit = {
-    gameLogic = new PipeLogic()
+    gameLogic = new PipeLogic(level, 0)
   }
 
   override def draw(): Unit = {
     updateState()
     if (appState == StateMenu) drawMenu()
     if (appState == StateGame) drawGame()
+    if (appState == StateGameOver) drawGameOver()
   }
 
   def drawMenu(): Unit = {
@@ -33,6 +38,13 @@ class PipeGame extends GameBase {
     textSize(55)
     menuList.foreach(findMenu)
   }
+
+  def drawGameOver(): Unit = {
+    background(loadedImageList("background"))
+    textSize(55)
+    gameOverMenuList.foreach(findMenu)
+  }
+
 
   def findMenu(item: Menu): Unit = item match {
     case item: TextBox => text(item.text, item.position.x.toFloat, item.position.y.toFloat)
@@ -49,6 +61,7 @@ class PipeGame extends GameBase {
   }
 
   def drawScore(): Unit = {
+    fill(255)
     textSize(40)
     text("Score: " + gameLogic.score, 150, 40)
     text("Required chain: " + gameLogic.required, 550, 40)
@@ -72,14 +85,18 @@ class PipeGame extends GameBase {
       for (x <- 0 until 10) {
         val element = gameLogic.getCellType(Point(x, i))
         val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
+        if (element.filled != 0) {
+          fill(color(0, 0, 255, 255 * element.filled))
+          rect(newPoint.x.toFloat, newPoint.y.toFloat, 101, 101)
+        }
         image(loadedImageList(element.image), newPoint.x.toFloat, newPoint.y.toFloat)
       }
     }
   }
 
   override def mouseClicked(event: MouseEvent): Unit = appState match {
-    case StateMenu => checkForMenuButtonClick()
     case StateGame => checkForGameButtonClick()
+    case _ => checkForMenuButtonClick()
   }
 
   def checkForGameButtonClick(): Unit = if (checkIfMouseInBounds(Point(150, 57), Point(1150, 757))) gameLogic.mouseClick(Point((mouseX-150)/100, (mouseY-57)/100))
@@ -96,7 +113,6 @@ class PipeGame extends GameBase {
 
   override def settings(): Unit = {
     pixelDensity(displayDensity())
-    // If line below gives errors try size(widthInPixels, heightInPixels, PConstants.P2D)
     size(gameWidth, gameHeight)
   }
 
@@ -111,9 +127,20 @@ class PipeGame extends GameBase {
 
   def updateState(): Unit = {
     if (updateTimer.timeForNextFrame()) {
-      gameLogic.advanceTime()
+      if (appState == StateGame) {
+        gameLogic.advanceTime()
+        checkForGameOver()
+      }
       updateTimer.advanceFrame()
     }
+  }
+
+  def checkForGameOver(): Unit = {
+    if (!gameLogic.gameOver) return
+    if (gameLogic.goalReached()) {
+      level += 1
+      gameLogic = new PipeLogic(level, gameLogic.score)
+    } else appState = StateGameOver
   }
 }
 

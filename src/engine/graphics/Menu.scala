@@ -19,3 +19,14 @@ object Menu {
     Image(Point(250, 100), "title")
   )
 }
+
+object GameOverMenu {
+  def apply(): List[Menu] = List[Menu](
+    Button(Point(400, 450)),
+    TextBox(Point(530, 500), "Retry"),
+    Button(Point(400, 650)),
+    TextBox(Point(540, 700), "Quit"),
+    //Image(Point(250, 100), "")
+  )
+}
+

@@ -1,48 +1,46 @@
 package pipes.logic
 
-import engine.helpers.Point
-
-abstract class Cell(val connections: List[Direction], var filled: Float = 0) {
+abstract class Cell(var sourcePipe: Option[Direction], val connections: List[Direction], var filled: Float = 0) {
   def image: String
 
-  def fill(n: Int): Unit = if (filled + n < 1) filled += n else filled = 1
-
-  def checkConnection(direction: Direction): Boolean = connections.contains(direction)
+  def getConnection: Direction = connections.filterNot(_ == sourcePipe.get).head
 }
 
-case class Empty() extends Cell(List()) {
+case class Empty() extends Cell(None, List()) {
   override def image: String = "emptyCell"
 }
 
-case class PlusCell() extends Cell(List[Direction](North(), West(), South(), East())) {
+case class PlusCell() extends Cell(None, List[Direction](North(), West(), South(), East())) {
   override def image: String = "+Cell"
+
+  override def getConnection: Direction = sourcePipe.get.opposite()
 }
 
-case class ICell() extends Cell(List[Direction](North(), South())) {
+case class ICell() extends Cell(None, List[Direction](North(), South())) {
   override def image: String = "ICell"
 }
 
-case class DashCell() extends Cell(List[Direction](West(), East())) {
+case class DashCell() extends Cell(None, List[Direction](West(), East())) {
   override def image: String = "-Cell"
 }
 
-case class NWCell() extends Cell(List[Direction](North(), West())) {
+case class NWCell() extends Cell(None, List[Direction](North(), West())) {
   override def image: String = "NWCell"
 }
 
-case class SWCell() extends Cell(List[Direction](South(), West())) {
+case class SWCell() extends Cell(None, List[Direction](South(), West())) {
   override def image: String = "SWCell"
 }
 
-case class SECell() extends Cell(List[Direction](South(), East())) {
+case class SECell() extends Cell(None, List[Direction](South(), East())) {
   override def image: String = "SECell"
 }
 
-case class NECell() extends Cell(List[Direction](North(), East())) {
+case class NECell() extends Cell(None, List[Direction](North(), East())) {
   override def image: String = "NECell"
 }
 
-abstract class Source(direction: Direction) extends Cell(List(direction))
+abstract class Source(direction: Direction) extends Cell(None, List(direction))
 
 case class SourceNCell() extends Source(North()) {
   override def image: String = "SourceNCell"

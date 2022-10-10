@@ -2,19 +2,22 @@ package pipes.logic
 
 import engine.helpers.Point
 
-class PipeLogic() {
+class PipeLogic(val level: Int, val startingScore: Int) {
   val rand = new scala.util.Random
 
-  val flowTime = 60
-  var currentFlowTime: Int = flowTime
+  val flowTime: Double = 60 - math.pow(0.9, level.toDouble)
+  var currentFlowTime: Int = flowTime.toInt
   var startTime = 60
 
   val startPoint: Point = Point(rand.nextInt(7) + 1, rand.nextInt(5) + 1)
 
-  var score = 0
-  val required = 7
+  var score: Int = startingScore
+  val required: Int = 7 + level
+  var requiredCurr = 0
 
   var gameState: GameState = GameState(generateFirstUpcoming(), makeStartingBoard(startPoint), startPoint)
+
+  var gameOver = false
 
   def getCellType(point: Point): Cell = gameState.board(point.y)(point.x)
 
@@ -26,20 +29,56 @@ class PipeLogic() {
       return
     }
 
-    if (flowTime != 0) {
+    if (currentFlowTime != 0) {
       currentFlowTime -= 1
+      setFillOnActivePipe()
       return
     }
 
-    currentFlowTime = flowTime
-    changeActivePipe(getActivePipe)
+    currentFlowTime = flowTime.toInt
+    changeActivePipe(getNewActivePipe)
   }
 
-  def getActivePipe: Point = {
-    Point(0, 0)
+  def getNewActivePipe: Point = {
+    currentPipe match {
+      case o: Source => gameState.activePipe + o.connections.head.relativeToPoint()
+      case o: Cell => gameState.activePipe + o.getConnection.relativeToPoint()
+      case _ => Point(-1, -1)
+    }
   }
 
-  def changeActivePipe(point: Point): Unit = gameState = gameState.copy(activePipe = point)
+  def goalReached(): Boolean = requiredCurr >= required
+
+  def currentPipe: Cell = gameState.board(gameState.activePipe.y)(gameState.activePipe.x)
+
+  def setFillOnActivePipe(): Unit = currentPipe.filled = 1-currentFlowTime.toFloat/flowTime.toFloat
+
+  def changeActivePipe(point: Point): Unit = {
+    if (checkGameOver(point)) return
+    addScore()
+    gameState.board(point.y)(point.x).sourcePipe = Some(directionFromPoints(gameState.activePipe, point))
+    gameState = gameState.copy(activePipe = point)
+  }
+
+  def addScore(): Unit = {
+    score += 100 * (level + 1)
+    requiredCurr += 1
+  }
+
+  def checkGameOver(point: Point): Boolean = {
+    if (getCellType(point) == Empty() || checkBounds(point) || !getCellType(point).connections.contains(directionFromPoints(gameState.activePipe, point))) gameOver = true
+    gameOver
+  }
+
+  def directionFromPoints(first: Point, second: Point): Direction = first - second match {
+    case Point(0, -1) => North()
+    case Point(0, 1) => South()
+    case Point(-1, 0) => West()
+    case Point(1, 0) => East()
+    case _ => North()
+  }
+
+  def checkBounds(point: Point): Boolean = point.x < 0 || point.y < 0 || point.x > 9 || point.y > 6
 
   def getUpcoming: List[Cell] = gameState.upcoming
 
@@ -92,5 +131,5 @@ case class GameState(upcoming: List[Cell], board: Seq[Seq[Cell]], activePipe: Po
 object PipeLogic {
   val FramesPerSecond: Int = 5
 
-  def apply() = new PipeLogic()
+  def apply(level: Int, score: Int) = new PipeLogic(level, score)
 }
