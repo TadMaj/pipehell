@@ -6,7 +6,6 @@ class GameBase extends PApplet {
   val gameWidth = 1200
   val gameHeight = 800
 
-  // inner class: can call current time of outer class
   class UpdateTimer(val framesPerSecond: Float) {
 
     val frameDuration: Float = 1000 / framesPerSecond // ms
