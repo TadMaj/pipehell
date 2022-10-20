@@ -8,14 +8,12 @@ import engine.graphics._
 import engine.helpers._
 
 class PipeGame extends GameBase {
-  var gameLogic: PipeLogic = PipeLogic(0, 0)
+  var gameLogic: Option[PipeLogic] = None
 
   val updateTimer = new UpdateTimer(PipeLogic.FramesPerSecond.toFloat)
 
   val menuList: List[Menu] = Menu()
-
   val gameOverMenuList: List[Menu] = GameOverMenu()
-
   var loadedImageList: Map[String, PImage] = Map[String, PImage]()
 
   var appState: AppState = StateMenu
@@ -23,7 +21,7 @@ class PipeGame extends GameBase {
   var level = 0
 
   def setupStartGame(): Unit = {
-    gameLogic = new PipeLogic(level, 0)
+    gameLogic = Some(new PipeLogic(level, 0))
   }
 
   override def draw(): Unit = {
@@ -41,7 +39,12 @@ class PipeGame extends GameBase {
 
   def drawGameOver(): Unit = {
     background(loadedImageList("background"))
+    textSize(100)
+    text("Game Over", 350, 120)
+    text("Score: " + gameLogic.get.score, 350, 300)
     textSize(55)
+
+
     gameOverMenuList.foreach(findMenu)
   }
 
@@ -63,13 +66,13 @@ class PipeGame extends GameBase {
   def drawScore(): Unit = {
     fill(255)
     textSize(40)
-    text("Score: " + gameLogic.score, 150, 40)
-    text("Required chain: " + gameLogic.required, 550, 40)
+    text("Score: " + gameLogic.get.score, 150, 40)
+    text("Required chain: " + gameLogic.get.required, 550, 40)
   }
 
   def drawUpcoming(): Unit = {
     val originPoint = Point(30, 80)
-    val upcoming: List[Cell] = gameLogic.getUpcoming
+    val upcoming: List[Cell] = gameLogic.get.getUpcoming
     for (i <- 0 until 5) image(loadedImageList(upcoming(i).image), originPoint.x.toFloat, (originPoint.y+100*i).toFloat)
   }
 
@@ -81,14 +84,37 @@ class PipeGame extends GameBase {
     fill(0, 0, 0)
     rect(pointOffset.x.toFloat, pointOffset.y.toFloat, cellRightOffSet.x.toFloat*10, cellDownOffSet.y.toFloat*7)
 
+    drawWaterGrid()
+    drawPipeGrid()
+
+  }
+
+  def drawWaterGrid(): Unit = {
+    val pointOffset = Point(150, 57)
+    val cellRightOffSet = Point(100, 0)
+    val cellDownOffSet = Point(0, 100)
+
     for (i <- 0 until 7) {
       for (x <- 0 until 10) {
-        val element = gameLogic.getCellType(Point(x, i))
-        val newPoint = pointOffset + cellRightOffSet*x + cellDownOffSet*i
+        val element = gameLogic.get.getCellType(Point(x, i))
+        val newPoint = pointOffset + cellRightOffSet * x + cellDownOffSet * i
         if (element.filled != 0) {
           fill(color(0, 0, 255, 255 * element.filled))
-          rect(newPoint.x.toFloat, newPoint.y.toFloat, 101, 101)
+          rect(newPoint.x.toFloat - 1, newPoint.y.toFloat - 1, 101, 101)
         }
+      }
+    }
+  }
+
+  def drawPipeGrid(): Unit = {
+    val pointOffset = Point(150, 57)
+    val cellRightOffSet = Point(100, 0)
+    val cellDownOffSet = Point(0, 100)
+
+    for (i <- 0 until 7) {
+      for (x <- 0 until 10) {
+        val element = gameLogic.get.getCellType(Point(x, i))
+        val newPoint = pointOffset + cellRightOffSet * x + cellDownOffSet * i
         image(loadedImageList(element.image), newPoint.x.toFloat, newPoint.y.toFloat)
       }
     }
@@ -99,7 +125,7 @@ class PipeGame extends GameBase {
     case _ => checkForMenuButtonClick()
   }
 
-  def checkForGameButtonClick(): Unit = if (checkIfMouseInBounds(Point(150, 57), Point(1150, 757))) gameLogic.mouseClick(Point((mouseX-150)/100, (mouseY-57)/100))
+  def checkForGameButtonClick(): Unit = if (checkIfMouseInBounds(Point(150, 57), Point(1150, 757))) gameLogic.get.mouseClick(Point((mouseX-150)/100, (mouseY-57)/100))
 
   def checkForMenuButtonClick(): Unit = {
     if (checkIfMouseInBounds(Point(400, 450), Point(800, 510))) {
@@ -128,7 +154,7 @@ class PipeGame extends GameBase {
   def updateState(): Unit = {
     if (updateTimer.timeForNextFrame()) {
       if (appState == StateGame) {
-        gameLogic.advanceTime()
+        gameLogic.get.advanceTime()
         checkForGameOver()
       }
       updateTimer.advanceFrame()
@@ -136,10 +162,10 @@ class PipeGame extends GameBase {
   }
 
   def checkForGameOver(): Unit = {
-    if (!gameLogic.gameOver) return
-    if (gameLogic.goalReached()) {
+    if (!gameLogic.get.gameOver) return
+    if (gameLogic.get.goalReached()) {
       level += 1
-      gameLogic = new PipeLogic(level, gameLogic.score)
+      gameLogic = Some(new PipeLogic(level, gameLogic.get.score))
     } else appState = StateGameOver
   }
 }

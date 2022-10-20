@@ -26,7 +26,6 @@ object GameOverMenu {
     TextBox(Point(530, 500), "Retry"),
     Button(Point(400, 650)),
     TextBox(Point(540, 700), "Quit"),
-    //Image(Point(250, 100), "")
   )
 }
 
