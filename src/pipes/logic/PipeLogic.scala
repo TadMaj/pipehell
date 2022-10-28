@@ -19,7 +19,9 @@ class PipeLogic(val level: Int, val startingScore: Int) {
 
   var gameOver = false
 
-  def getCellType(point: Point): Cell = gameState.board(point.y)(point.x)
+  def getCellType(point: Point): Cell = if ((0 <= point.y && point.y < 7) && (0 <= point.x && 10 > point.x)) {
+    gameState.board(point.y)(point.x)
+  } else Empty()
 
   def mouseClick(point: Point): Unit = if (isBoardSpaceEmpty(point)) placeCell(point, popUpcoming())
 
